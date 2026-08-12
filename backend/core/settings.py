@@ -194,3 +194,30 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
 AUTH_USER_MODEL = "core_APP.User"
+
+
+# Security settings for cookies & CSRF protection
+CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=False)
+SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=False)
+
+# Recommended consts
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+# LAX = Cookies are sent on top-level navigation 
+# (e.g., clicking a link to your site from an external site) and GET requests, 
+# but blocked on cross-site subrequests (e.g., image tags, POST forms from third-party sites).
+
+# STRICT = Cookies are never sent in any cross-site request context, 
+# even when a user clicks an external link leading straight to your site.
+
+# NONE = Cookies are sent in all cross-site contexts 
+# (e.g., embedded <iframe>s or cross-origin fetch/axios requests).
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# X FORWARDED PROTO is used by reverse proxies (e.g., Nginx)
+# to share the 'protocol' of request to server
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS',default=[
+        'http://localhost:8000',
+        'http://127.0.0.1:8000',
+    ],
+)
