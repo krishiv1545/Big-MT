@@ -1,0 +1,26 @@
+[Unit]
+Description=Big-MT Staging Gunicorn
+After=network.target
+
+[Service]
+User=<DEPLOY_USER>
+Group=www-data
+
+WorkingDirectory=<PROJECT_ROOT>/backend
+
+Environment="PATH=<PROJECT_ROOT>/env/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+ExecStart=<PROJECT_ROOT>/env/bin/gunicorn \
+    --preload \
+    --workers 2 \
+    --timeout 60 \
+    --access-logfile <PROJECT_ROOT>/backend/gunicorn_access.log \
+    --error-logfile <PROJECT_ROOT>/backend/gunicorn_error.log \
+    --log-level info \
+    --bind unix:<PROJECT_ROOT>/backend/gunicorn.sock \
+    core.wsgi:application
+
+MemoryMax=2G
+
+[Install]
+WantedBy=multi-user.target

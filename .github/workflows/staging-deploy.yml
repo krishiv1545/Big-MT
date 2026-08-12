@@ -1,4 +1,4 @@
-name: Deploy to EC2 (Staging)
+name: Deploy to Ubuntu Server LTS 24.04 (Staging)
 
 on:
   push:
@@ -10,24 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Connect and run deploy script
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.EC2_HOST_TEST }}
-        username: ${{ secrets.EC2_USER_TEST }}
-        key: ${{ secrets.EC2_SSH_KEY_TEST }}
-        script: |
-          cd ~/Big-MT
-          # Redirect git pull stderr to stdout, filter out "non-fatal" lines
-          git pull origin staging 2>&1 | grep -v "From " || true
-          
-          source env/bin/activate
-          pip install -r requirements.txt
+      - name: Deploy to staging server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            cd ~/Big-MT
 
-          cd ~/Big-MT/backend
-          python manage.py collectstatic --noinput
-          python manage.py makemigrations --noinput
-          python manage.py migrate_all
+            git pull origin staging
 
-          sudo systemctl restart gunicorn_stage
-          sudo systemctl restart nginx
+            source env/bin/activate
+            pip install -r requirements.txt
+
+            cd ~/Big-MT/backend
+            python manage.py collectstatic --noinput
+            python manage.py makemigrations --noinput
+            python manage.py migrate
+
+            sudo systemctl restart gunicorn_staging
+            sudo systemctl restart nginx
