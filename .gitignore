@@ -91,3 +91,6 @@ yarn-error.log*
 
 # Local settings
 local_settings.py
+
+.roo
+.roo/

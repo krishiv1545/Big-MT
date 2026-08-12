@@ -55,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core_APP.middleware.logging.RequestIdMiddleware', # /core_APP/middleware/logging.py
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -130,6 +131,57 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Redirect @login_required to the login page
 LOGIN_URL = '/'
 
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} [request_id: {request_id}] {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'request_id_filter': {
+            '()': 'core_APP.middleware.logging.RequestIdFilter',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+            'filters': ['request_id_filter'],
+        },
+        'django_error': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'verbose',
+            'filters': ['request_id_filter'],
+        },
+    },
+    'root': {
+        'level': 'INFO',
+        'handlers': ['console'],
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['django_error'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
+
 # 1. Tell Django where to LOOK for your custom app assets during development
 STATICFILES_DIRS = [
     BASE_DIR / 'core_APP' / 'static',
@@ -137,3 +189,6 @@ STATICFILES_DIRS = [
 
 # 2. Tell Django where to COLLECT all assets inside the container for production
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+
+AUTH_USER_MODEL = "core_APP.User"

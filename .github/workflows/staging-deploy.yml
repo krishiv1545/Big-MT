@@ -1,0 +1,33 @@
+name: Deploy to EC2 (Staging)
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs: 
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Connect and run deploy script
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.EC2_HOST_TEST }}
+        username: ${{ secrets.EC2_USER_TEST }}
+        key: ${{ secrets.EC2_SSH_KEY_TEST }}
+        script: |
+          cd ~/Big-MT
+          # Redirect git pull stderr to stdout, filter out "non-fatal" lines
+          git pull origin staging 2>&1 | grep -v "From " || true
+          
+          source env/bin/activate
+          pip install -r requirements.txt
+
+          cd ~/Big-MT/backend
+          python manage.py collectstatic --noinput
+          python manage.py makemigrations --noinput
+          python manage.py migrate_all
+
+          sudo systemctl restart gunicorn_stage
+          sudo systemctl restart nginx
