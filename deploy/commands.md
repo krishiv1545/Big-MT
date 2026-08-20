@@ -64,3 +64,17 @@ sudo systemctl restart nginx
 # Check current status
 sudo systemctl status nginx
 ```
+
+## Docker Daemon
+
+**Service:**
+```bash
+# Enable dockerd to start automatically on boot
+sudo systemctl enable docker
+
+# Start dockerd
+sudo systemctl start docker
+
+# Check current status
+sudo systemctl status docker
+```

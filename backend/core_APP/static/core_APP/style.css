@@ -15,9 +15,6 @@ a {
     color: #1a5276;
     text-decoration: none;
 }
-a:hover {
-    text-decoration: underline;
-}
 
 /* ── Auth card (login / signup) ──────────────────────────────────────────── */
 
@@ -209,4 +206,160 @@ a:hover {
     margin-bottom: 20px;
     border-bottom: 1px solid #ccc;
     padding-bottom: 8px;
+}
+
+/* Form */
+
+.form-container {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+/* Table */
+
+.rounded-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden; /* Clips top/bottom background colors to the curve */
+  
+  border: 1px solid #e0e0e0;
+  width: 100%;
+}
+table th,
+table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #ccc;
+    background-color: #fff;
+}
+table th {
+    background: #c1c1c1;
+    text-align: left;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+
+.btn {
+    display: inline-block;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 4px;
+    border: 1px solid #222;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    text-decoration: none;
+}
+
+.submit-btn {
+    background: #222;
+    color: #fff;
+    border-color: #222;
+}
+
+.submit-btn:hover {
+    background: #444;
+    border-color: #444;
+}
+
+.reset-btn {
+    background: #fff;
+    color: #222;
+    border-color: #ccc;
+}
+
+.reset-btn:hover {
+    background: #f0f0f0;
+    border-color: #bbb;
+}
+
+.delete-btn {
+    background: #d9534f;
+    color: #fff;
+    border: 1px solid #d9534f;
+}
+
+.delete-btn:hover {
+    background: #c9302c;
+    border-color: #c9302c;
+}
+
+.pdf-btn {
+    background: #e74c3c;
+    color: #fff;
+    border-color: #e74c3c;
+}
+
+.pdf-btn:hover {
+    background: #c0392b;
+    border-color: #c0392b;
+}
+
+.back-btn {
+    background: #eee;
+    color: #333;
+    border-color: #ccc;
+}
+
+.back-btn:hover {
+    background: #ddd;
+    border-color: #bbb;
+}
+
+.stylesheet-btn {
+    background: #3498db;
+    color: #fff;
+    border-color: #3498db;
+}
+
+.stylesheet-btn:hover {
+    background: #2980b9;
+    border: 1px solid #2980b9;
+}
+
+.edit-btn {
+    background: #f39c12;
+    color: #fff;
+    border-color: #f39c12;
+}
+
+.edit-btn:hover {
+    background: #e67e22;
+    border-color: #e67e22;
+}
+
+.disabled-btn {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.disabled-btn::after {
+    content: "";
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    left: 50%;
+    width: 3px;
+    background: #000;
+    transform: translateX(-50%) rotate(45deg);
+    border-radius: 2px;
+}
+
+
+
+
+
+
+
+.highlight {
+    background-color: #ffffcc;
 }

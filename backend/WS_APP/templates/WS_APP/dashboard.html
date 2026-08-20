@@ -1,0 +1,103 @@
+{% extends "core_APP/base.html" %}
+{% block title %}WS Dashboard{% endblock %}
+
+{% block body %}
+<nav class="navbar">
+    <span class="brand">Project Name</span>
+    <ul class="nav-links">
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'settings' %}">Settings</a></li>
+        <li><a href="{% url 'ws_dashboard' %}" class="active">WS Dashboard</a></li>
+        <li><a href="{% url 'room_auth' %}">Join Room</a></li>
+    </ul>
+    <div class="spacer"></div>
+    <div class="nav-user">
+        <span>{{ request.user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Log Out</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page">
+    {% if messages %}
+    <ul class="messages">
+        {% for msg in messages %}
+        <li class="{{ msg.tags }}">{{ msg }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <h2>WS Dashboard</h2>
+
+    <!-- Header bar containing title/input on left & Add Room button on right -->
+    <div class="table-header-bar" style="display: flex; align-items: flex-end; margin-bottom: 15px; margin-top: 25px; gap: 10px;">
+        <div class="header-left">
+            
+            <!-- Compact PIN Input inline form -->
+            <form id="add-room-form" method="post" action="{% url 'add_room' %}" style="display: flex; align-items: center; gap: 8px;">
+                {% csrf_token %}
+                <label for="pin" style="font-weight: 500; font-size: 14px;">PIN:</label>
+                <input 
+                    type="number" 
+                    id="pin" 
+                    name="pin" 
+                    min="1000"
+                    max="9999"
+                    placeholder="4-digit PIN" 
+                    required 
+                    style="width: 110px; padding: 7px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;"
+                >
+            </form>
+        </div>
+
+        <!-- Submit button styled to sit at top right above table -->
+        <div class="header-right">
+            <button 
+                type="submit" 
+                form="add-room-form" 
+                class=" btn submit-btn
+                {% if not user.is_authenticated %} disabled-btn{% endif %}"
+            >
+                + Add Room
+            </button>
+        </div>
+    </div>
+
+    <h3 style="margin: 0 0 10px 0;">Available Rooms</h3>
+
+    <table class="room-table rounded-table" style="width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 8px; overflow: hidden; border: 1px solid #ddd;">
+        <thead>
+            <tr style="background-color: #f2f2f2; text-align: left;">
+                <th style="padding: 12px; border-bottom: 1px solid #ddd;">UUID</th>
+                <th style="padding: 12px; border-bottom: 1px solid #ddd;">PIN</th>
+                <th style="padding: 12px; border-bottom: 1px solid #ddd;">Created At</th>
+                <th style="padding: 12px; border-bottom: 1px solid #ddd;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for room in rooms %}
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #eee;">{{ room.uuid }}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #eee;">{{ room.pin }}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #eee;">{{ room.created_at|date:"Y-m-d H:i" }}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #eee;">
+                    <form method="post" action="{% url 'delete_room' room.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn delete-btn">Delete</button>
+                    </form>
+                    <a href="{% url 'room_auth' %}?uuid={{ room.uuid }}" class="btn submit-btn">
+                        Join
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" style="padding: 16px; text-align: center; color: #666;">No rooms available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

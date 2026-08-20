@@ -1,0 +1,188 @@
+{% extends "core_APP/base.html" %}
+
+{% load static %}
+
+{% block title %}Room {{ room.uuid }}{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'WS_APP/style.css' %}">
+{% endblock %}
+
+{% block body %}
+<div class="room">
+
+    <!-- Main media stage -->
+    <main class="room-stage">
+
+        <!-- Screen share -->
+        <section class="screen-stage">
+            <video
+                id="screen-video"
+                autoplay
+                playsinline
+            ></video>
+
+            <div class="screen-placeholder" id="screen-placeholder">
+                <span>No screen is being shared</span>
+            </div>
+        </section>
+
+        <!-- Participant videos -->
+        <section class="video-layer" id="video-layer">
+
+            <!-- Local video -->
+            <div class="video-tile local-video">
+                <video
+                    id="local-video"
+                    autoplay
+                    muted
+                    playsinline
+                ></video>
+
+                <span class="participant-name">
+                    You
+                </span>
+            </div>
+
+            <!-- Remote videos will be inserted here -->
+
+        </section>
+
+        <!-- Room information -->
+        <div class="room-info">
+            <span>Room</span>
+            <strong>{{ room.uuid }}</strong>
+        </div>
+
+    </main>
+
+
+    <!-- Bottom controls -->
+    <footer class="room-controls">
+
+        <div class="controls-left">
+
+            <button
+                type="button"
+                class="control-btn"
+                id="mic-btn"
+                title="Mute microphone"
+            >
+                Mic
+            </button>
+
+            <button
+                type="button"
+                class="control-btn"
+                id="camera-btn"
+                title="Turn camera off"
+            >
+                Camera
+            </button>
+
+            <button
+                type="button"
+                class="control-btn share-btn"
+                id="screen-share-btn"
+            >
+                Share Screen
+            </button>
+
+        </div>
+
+        <div class="controls-right">
+
+            <button
+                type="button"
+                class="control-btn"
+                id="participants-btn"
+            >
+                Participants
+            </button>
+
+            <button
+                type="button"
+                class="control-btn"
+                id="chat-btn"
+            >
+                Chat
+            </button>
+
+            <button
+                type="button"
+                class="control-btn leave-btn"
+                id="leave-btn"
+            >
+                Leave
+            </button>
+
+        </div>
+
+    </footer>
+
+
+    <!-- Chat panel -->
+    <aside class="chat-panel" id="chat-panel">
+
+        <div class="chat-header">
+            <span>Chat</span>
+
+            <button
+                type="button"
+                id="close-chat-btn"
+            >
+                ×
+            </button>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages inserted by JS -->
+        </div>
+
+        <form class="chat-input" id="chat-form">
+
+            <input
+                type="text"
+                id="chat-message"
+                placeholder="Message..."
+                autocomplete="off"
+            >
+
+            <button type="submit">
+                Send
+            </button>
+
+        </form>
+
+    </aside>
+
+
+    <!-- Participants panel -->
+    <aside
+        class="participants-panel"
+        id="participants-panel"
+    >
+
+        <div class="participants-header">
+            <span>Participants</span>
+
+            <button
+                type="button"
+                id="close-participants-btn"
+            >
+                ×
+            </button>
+        </div>
+
+        <div
+            class="participants-list"
+            id="participants-list"
+        >
+            <!-- Participants inserted by JS -->
+        </div>
+
+    </aside>
+
+</div>
+
+{% endblock %}

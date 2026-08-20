@@ -1,0 +1,77 @@
+{% extends "core_APP/base.html" %}
+
+{% block title %}Join Room{% endblock %}
+
+{% block body %}
+
+<nav class="navbar">
+    <span class="brand">Project Name</span>
+
+    <ul class="nav-links">
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'settings' %}">Settings</a></li>
+        <li><a href="{% url 'ws_dashboard' %}">WS Dashboard</a></li>
+        <li><a href="{% url 'room_auth' %}" class="active">Join Room</a></li>
+    </ul>
+
+    <div class="spacer"></div>
+
+    <div class="nav-user">
+        <span>{{ request.user.username }}</span>
+
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Log Out</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page">
+
+    {% if messages %}
+        <ul class="messages">
+            {% for msg in messages %}
+                <li class="{{ msg.tags }}">{{ msg }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <h2>Join Room</h2>
+
+    <form method="POST" class="form-container">
+        {% csrf_token %}
+
+        <label for="uuid">Room UUID</label>
+
+        <input
+            type="text"
+            name="uuid"
+            id="uuid"
+            value="{{ room_uuid }}"
+            placeholder="Enter room UUID"
+            required
+        >
+
+        <label for="pin">Room PIN</label>
+
+        <input
+            type="password"
+            name="pin"
+            id="pin"
+            maxlength="4"
+            minlength="4"
+            pattern="[0-9]{4}"
+            inputmode="numeric"
+            placeholder="••••"
+            autocomplete="off"
+            required
+        >
+
+        <button type="submit" class="btn submit-btn">
+            Enter
+        </button>
+    </form>
+
+</div>
+
+{% endblock %}
