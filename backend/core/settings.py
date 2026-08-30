@@ -83,11 +83,28 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    "default": {
+        "ENGINE": env("DB_ENGINE"),
+        "NAME": env("DB_NAME"),
+        "USER": env("DB_USER"),
+        "PASSWORD": env("DB_PASSWORD"),
+        "HOST": env("DB_HOST"),
+        "PORT": env("DB_PORT"),
+        # You can keep or modify the advanced options below:
+        "TIME_ZONE": 'America/Los_Angeles',
+        "CONN_MAX_AGE": 3600,            # Keep DB connections alive for 600s
+        "CONN_HEALTH_CHECKS": True,      # Periodically check if connection is valid
+        "OPTIONS": {},                   # If you need SSL or other Postgres opts, set them here
+        "AUTOCOMMIT": True,              # Autocommit mode
+    },
 }
 
 
