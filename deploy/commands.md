@@ -168,3 +168,182 @@ sudo -u postgres psql -c "SELECT pg_reload_conf();"
 psql -h <your_magic_dns>.ts.net -U bigmt_app -d bigmt
 Password for user bigmt_app:
 ```
+
+**Backup**
+```bash
+# Create backup directory
+sudo mkdir -p /var/backups/postgresql/bigmt
+
+# Update permissions
+sudo chmod 700 /var/backups/postgresql/bigmt
+# 7 = owner
+# 0 = group
+# 0 = others
+#
+# 4 = read
+# 2 = write
+# 1 = execute
+#
+# 1 + 2 + 4 = 7
+
+# Change owner (chown)
+sudo chown postgres:postgres /var/backups/postgresql/bigmt
+```
+
+**PgBackRest**
+```bash
+# Install
+sudo apt install pgbackrest
+
+# Create directories for PgBR repository data & logs
+sudo mkdir -p /var/backups/pgbackrest
+sudo mkdir -p /var/log/pgbackrest
+
+# Change owner (chown)
+sudo chown -R postgres:postgres /var/backups/pgbackrest
+sudo chown -R postgres:postgres /var/log/pgbackrest
+
+# Change permissions
+sudo chmod 750 /var/backups/pgbackrest # No write access for 'postgres' group
+sudo chmod 750 /var/log/pgbackrest     # No write access for 'postgres' group
+
+# Update pgbackrest.conf
+sudo nano /etc/pgbackrest.conf
+```
+
+Final content should be following:-
+
+```conf
+[global]
+repo1-path=/var/lib/pgbackrest
+repo1-retention-full=2
+#repo1-cipher-pass=...
+#repo1-cipher-type=aes-256-cbc
+repo1-retention-diff=4
+
+log-level-console=info
+log-level-file=detail
+log-path=/var/log/pgbackrest
+
+start-fast=y
+delta=y
+
+#[main]
+#pg1-path=/var/lib/postgresql/13/main
+
+[bigmt]
+pg1-path=/var/lib/postgresql/16/main
+```
+
+bigmt is a new 'stanza' that just represents a cluster
+repo1-retention-full --> how many full backups
+repo1-retention-diff --> how many differential backups (only backup diffs since last full backup)
+pg1-path --> stanza location
+
+```bash
+# Update permissions
+sudo chmod 640 /etc/pgbackrest.conf
+
+# Initialize stanza
+sudo -u postgres pgbackrest --stanza=bigmt stanza-create
+
+# psql version=16; cluster name=main
+sudo nano /etc/postgresql/16/main/postgresql.conf
+
+# Set archive_mode and archive_command under 'Write-Ahead Log' section
+archive_mode = on
+archive_command = 'pgbackrest --stanza=bigmt archive-push %p'
+
+# Restart and check
+sudo -u postgres pgbackrest --stanza=bigmt check
+
+# Take a full backup
+sudo -u postgres pgbackrest --stanza=bigmt backup --type=full
+# incr (default) -> incremental
+# diff -> differential
+
+sudo -u postgres pgbackrest --stanza=bigmt info
+```
+
+**Automate**
+```bash
+# Create a FULL BACKUP service
+sudo nano /etc/systemd/system/pgbackrest-bigmt-full.service
+```
+Content:-
+```conf
+[Unit]
+Description=Big-MT PostgreSQL full backup
+Wants=postgresql.service
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=postgres
+ExecStart=/usr/bin/pgbackrest --stanza=bigmt backup --type=full
+```
+
+```bash
+# Create a DIFFERENTIAL BACKUP service
+sudo nano /etc/systemd/system/pgbackrest-bigmt-diff.service
+```
+Content:-
+```conf
+[Unit]
+Description=Big-MT PostgreSQL differential backup
+Wants=postgresql.service
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=postgres
+ExecStart=/usr/bin/pgbackrest --stanza=bigmt backup --type=diff
+```
+
+```bash
+# Create a timer for FULL backup
+# "pgbackrest --stanza=bigmt backup --type=full"
+sudo nano /etc/systemd/system/pgbackrest-bigmt-full.timer
+```
+Content:-
+```conf
+[Unit]
+Description=Weekly Big-MT PostgreSQL full backup
+
+[Timer]
+OnCalendar=Sun 03:00
+Persistent=true
+Unit=pgbackrest-bigmt-full.service
+
+[Install]
+WantedBy=timers.target
+```
+
+```bash
+# Create a timer for DIFFERENTIAL backup
+# "pgbackrest --stanza=bigmt backup --type=diff"
+sudo nano /etc/systemd/system/pgbackrest-bigmt-diff.timer
+```
+Content:-
+```conf
+[Unit]
+Description=Daily Big-MT PostgreSQL differential backup
+
+[Timer]
+OnCalendar=Mon..Sat 03:00
+Persistent=true
+Unit=pgbackrest-bigmt-diff.service
+
+[Install]
+WantedBy=timers.target
+```
+
+`Persistent=true` means that if the server is powered off when the scheduled time passes, systemd will run the missed backup when the server comes back online.
+`Unit=` tells which service the timer needs to trigger.
+
+```bash
+# Reload and enable
+sudo systemctl daemon-reload
+sudo systemctl enable --now pgbackrest-bigmt-full.timer
+sudo systemctl enable --now pgbackrest-bigmt-diff.timer
+```
