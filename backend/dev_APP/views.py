@@ -121,7 +121,7 @@ def get_pgbackrest_info():
                 "unknown",
             ),
             "stanza": stanza.get("name", "bigmt"),
-            "backups": backups,
+            "backups": backups[::-1],  # Reverse to show newest first
             "latest_backup": latest_backup,
             "full_backups": full_backups,
             "latest_full": latest_full,
