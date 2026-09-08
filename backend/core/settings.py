@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core_APP',
+    'dev_APP',
 ]
 
 MIDDLEWARE = [
@@ -204,6 +205,7 @@ LOGGING = {
 # 1. Tell Django where to LOOK for your custom app assets during development
 STATICFILES_DIRS = [
     BASE_DIR / 'core_APP' / 'static',
+    BASE_DIR / 'dev_APP' / 'static',
 ]
 
 # 2. Tell Django where to COLLECT all assets inside the container for production

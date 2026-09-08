@@ -1,0 +1,88 @@
+.dashboard-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 20px 0;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.dashboard-tab {
+    display: inline-block;
+    padding: 8px 16px;
+    text-decoration: none;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    color: #333;
+    background: #f5f5f5;
+}
+
+.dashboard-tab:hover {
+    background: #e9e9e9;
+    text-decoration: none;
+}
+
+.dashboard-tab.active {
+    background: #333;
+    color: white;
+    border-color: #333;
+}
+
+.dashboard-content {
+    margin-top: 20px;
+}
+
+.database-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.info-card {
+    padding: 18px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.info-card .label {
+    display: block;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.info-card .value {
+    display: block;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.status-card {
+    padding: 16px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.status-card.error {
+    border-color: #c00;
+}
+
+.backup-card {
+    margin-bottom: 25px;
+}
+
+.database-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.database-table th,
+.database-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}

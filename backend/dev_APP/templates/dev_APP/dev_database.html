@@ -1,0 +1,150 @@
+{% extends "dev_APP/dev_dashboard.html" %}
+
+{% block dashboard_content %}
+
+<h3>Database</h3>
+
+{% if database_error %}
+
+<div class="status-card error">
+    <strong>Database Error</strong>
+    <p>{{ database_error }}</p>
+</div>
+
+{% else %}
+
+<div class="database-grid">
+
+    <div class="info-card">
+        <span class="label">Status</span>
+        <span class="value">Connected</span>
+    </div>
+
+    <div class="info-card">
+        <span class="label">Database</span>
+        <span class="value">{{ database.database }}</span>
+    </div>
+
+    <div class="info-card">
+        <span class="label">PostgreSQL</span>
+        <span class="value">{{ database.version }}</span>
+    </div>
+
+    <div class="info-card">
+        <span class="label">Database Size</span>
+        <span class="value">{{ database.size_mb }} MB</span>
+    </div>
+
+    <div class="info-card">
+        <span class="label">Users</span>
+        <span class="value">{{ database.users }}</span>
+    </div>
+
+    <div class="info-card">
+        <span class="label">Tables</span>
+        <span class="value">{{ database.tables }}</span>
+    </div>
+
+    <div class="info-card">
+        <span class="label">Migrations</span>
+        <span class="value">{{ database.migrations }}</span>
+    </div>
+
+    <div class="info-card">
+        <span class="label">Connections</span>
+        <span class="value">{{ database.connections }}</span>
+    </div>
+
+</div>
+
+{% endif %}
+
+
+<h3>pgBackRest</h3>
+
+{% if pgbackrest.status == "ok" %}
+
+<div class="status-card">
+    <strong>Backup System: OK</strong>
+</div>
+
+{% else %}
+
+<div class="status-card error">
+    <strong>Backup System Error</strong>
+    <p>{{ pgbackrest.message }}</p>
+</div>
+
+{% endif %}
+
+
+{% if pgbackrest.latest_backup %}
+
+<div class="info-card backup-card">
+
+    <span class="label">Latest Backup</span>
+
+    <span class="value">
+        {{ pgbackrest.latest_backup.label }}
+    </span>
+
+    <p>
+        Type:
+        {{ pgbackrest.latest_backup.type }}
+    </p>
+
+    <p>
+        Start:
+        {{ pgbackrest.latest_backup.timestamp.start }}
+    </p>
+
+    <p>
+        Stop:
+        {{ pgbackrest.latest_backup.timestamp.stop }}
+    </p>
+
+    <p>
+        Database Size:
+        {{ pgbackrest.latest_backup.info.size|filesizeformat }}
+    </p>
+
+</div>
+
+{% endif %}
+
+
+{% if pgbackrest.backups %}
+
+<h4>Backup History</h4>
+
+<table class="database-table">
+
+    <thead>
+        <tr>
+            <th>Label</th>
+            <th>Type</th>
+            <th>Start</th>
+            <th>Size</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for backup in pgbackrest.backups %}
+
+        <tr>
+            <td>{{ backup.label }}</td>
+            <td>{{ backup.type }}</td>
+            <td>{{ backup.timestamp.start }}</td>
+            <td>{{ backup.info.repository.size|filesizeformat }}</td>
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endif %}
+
+{% endblock %}

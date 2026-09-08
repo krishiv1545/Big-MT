@@ -1,0 +1,71 @@
+{% extends "core_APP/base.html" %}
+{% load static %}
+
+{% block title %}Developer Dashboard{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'dev_APP/style.css' %}">
+{% endblock %}
+
+{% block body %}
+
+<nav class="navbar">
+    <span class="brand">Big-MT</span>
+
+    <ul class="nav-links">
+        <li><a href="{% url 'dev_dashboard' %}" class="active">Developer Dashboard</a></li>
+        <li><a href="{% url 'settings' %}">Settings</a></li>
+    </ul>
+
+    <div class="spacer"></div>
+
+    <div class="nav-user">
+        <span>{{ request.user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Log Out</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page">
+    {% if messages %}
+    <ul class="messages">
+        {% for msg in messages %}
+        <li class="{{ msg.tags }}">{{ msg }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <h2>Developer Dashboard</h2>
+
+    <div class="dashboard-tabs">
+        <a href="{% url 'dev_dashboard' %}"
+        class="dashboard-tab {% if active_tab == 'overview' %}active{% endif %}">
+            Overview
+        </a>
+
+        <a href="{% url 'dev_logs' %}"
+        class="dashboard-tab {% if active_tab == 'logs' %}active{% endif %}">
+            Logs
+        </a>
+
+        <a href="{% url 'dev_database' %}"
+        class="dashboard-tab {% if active_tab == 'database' %}active{% endif %}">
+            Database
+        </a>
+
+        <a href="{% url 'dev_system' %}"
+        class="dashboard-tab {% if active_tab == 'system' %}active{% endif %}">
+            System
+        </a>
+    </div>
+
+    <div class="dashboard-content">
+        {% block dashboard_content %}
+        Defaulttt
+        {% endblock %}
+    </div>
+
+</div>
+{% endblock %}
