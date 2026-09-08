@@ -9,6 +9,7 @@ from core_APP.models import User
 
 import json
 import subprocess
+from datetime import datetime
 
 
 @login_required
@@ -114,6 +115,10 @@ def get_pgbackrest_info():
         ]
 
         latest_full = full_backups[-1] if full_backups else None
+
+        for backup in backups:
+            backup['timestamp']['start'] = datetime.fromtimestamp(backup['timestamp']['start'])
+            backup['timestamp']['stop'] = datetime.fromtimestamp(backup['timestamp']['stop'])
 
         return {
             "status": stanza.get("status", {}).get(
