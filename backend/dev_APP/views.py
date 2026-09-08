@@ -72,10 +72,10 @@ def get_pgbackrest_info():
     try:
         result = subprocess.run(
             [
-                "/usr/bin/pgbackrest",
-                "--stanza=bigmt",
-                "info",
-                "--output=json",
+                "/usr/bin/sudo",
+                "-u",
+                "postgres",
+                "/usr/local/bin/bigmt-pgbackrest-info",
             ],
             capture_output=True,
             text=True,
@@ -95,14 +95,39 @@ def get_pgbackrest_info():
 
         backups = stanza.get("backup", [])
         archive = stanza.get("archive", [])
+        repo = stanza.get("repo", [])
 
+        # pgBackRest returns backups chronologically,
+        # so the last entry is the newest backup.
         latest_backup = backups[-1] if backups else None
 
+        full_backups = [
+            backup
+            for backup in backups
+            if backup.get("type") == "full"
+        ]
+
+        differential_backups = [
+            backup
+            for backup in backups
+            if backup.get("type") == "diff"
+        ]
+
+        latest_full = full_backups[-1] if full_backups else None
+
         return {
-            "status": stanza.get("status", {}).get("message", "unknown"),
+            "status": stanza.get("status", {}).get(
+                "message",
+                "unknown",
+            ),
+            "stanza": stanza.get("name", "bigmt"),
             "backups": backups,
             "latest_backup": latest_backup,
+            "full_backups": full_backups,
+            "latest_full": latest_full,
+            "differential_backups": differential_backups,
             "archive": archive,
+            "repo": repo,
         }
 
     except subprocess.TimeoutExpired:
@@ -117,7 +142,13 @@ def get_pgbackrest_info():
             "message": exc.stderr.strip() or "pgBackRest command failed.",
         }
 
-    except (json.JSONDecodeError, IndexError, KeyError, OSError) as exc:
+    except json.JSONDecodeError as exc:
+        return {
+            "status": "error",
+            "message": f"Invalid pgBackRest JSON: {exc}",
+        }
+
+    except OSError as exc:
         return {
             "status": "error",
             "message": str(exc),

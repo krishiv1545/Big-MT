@@ -395,3 +395,39 @@ sudo -u postgres pgbackrest \
 # Restart Postgres
 sudo systemctl start postgresql
 ```
+
+**Db Dashboard**
+```bash
+# bigmt-pgbackrest-info requires postgres user
+# We can create wrappers with very limited OS level permissions for specific commands
+sudo nano /usr/local/bin/bigmt-pgbackrest-info
+```
+Content:-
+```bash
+#!/bin/bash
+exec /usr/bin/pgbackrest --stanza=bigmt info --output=json
+```
+
+```bash
+# Update permissions
+sudo chown root:root /usr/local/bin/bigmt-pgbackrest-info
+sudo chmod 755 /usr/local/bin/bigmt-pgbackrest-info
+
+# Test the sh
+sudo -u postgres /usr/local/bin/bigmt-pgbackrest-info
+
+# Create a narrow sudo scope
+sudo visudo -f /etc/sudoers.d/bigmt-pgbackrest
+```
+Content:-
+```conf
+vishva ALL=(postgres) NOPASSWD: /usr/local/bin/bigmt-pgbackrest-info
+```
+
+```bash
+# Save and validate
+sudo visudo -c
+```
+
+Now the command `sudo -u postgres /usr/local/bin/bigmt-pgbackrest-info` should execute without asking for password
+
