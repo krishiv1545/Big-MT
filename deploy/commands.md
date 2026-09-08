@@ -347,3 +347,51 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now pgbackrest-bigmt-full.timer
 sudo systemctl enable --now pgbackrest-bigmt-diff.timer
 ```
+
+**Disaster Recovery**
+```bash
+# now() returns current timestamp; pg_current_wal_lsn() --> "1/8001878",
+# 1 refers to file's logical ID, 8001878 is byte-offset, 
+# it's a hex representing exact byte where Postgres will write it's next log
+sudo -u postgres psql -d bigmt -c "SELECT now(), pg_current_wal_lsn();"
+
+# pg_switch_wal() forces Postgres to close current WAL file and start fresh with new 16mb segment
+sudo -u postgres psql -d bigmt -c "SELECT pg_switch_wal();"
+
+# To make sure all WAL segments reached repo (disk, S3, etc.)
+sudo -u postgres pgbackrest --stanza=bigmt check
+
+# Stop everything so no data is further written to Postgres
+sudo systemctl stop gunicorn_staging
+sudo systemctl stop postgresql
+
+# Verify Postgres is down
+pg_lsclusters
+
+# Rename database directory (backup of damaged main, basically)
+sudo mv /var/lib/postgresql/16/main /var/lib/postgresql/16/main-after-disaster
+
+# Create fresh database directory to recover into
+sudo mkdir /var/lib/postgresql/16/main
+sudo chown postgres:postgres /var/lib/postgresql/16/main
+sudo chmod 700 /var/lib/postgresql/16/main
+
+# Get SET value of latest differential backup
+sudo -u postgres pgbackrest --stanza=bigmt info
+
+# Restore
+# Set comes from info command
+# Target is the choice of PITR (Point-in-time Recovery)
+# This automatically recovers FULL BACKUP + last DIFFERENTIAL BACKUP + archived WAL logs upto target
+sudo -u postgres pgbackrest \
+    --stanza=bigmt \
+    --set=20260905-065422F_20260908-030000D \
+    --type=time \
+    --target="2026-09-08 04:42:00+00" \
+    --target-action=promote \
+    --pg1-path=/var/lib/postgresql/16/main \
+    restore
+
+# Restart Postgres
+sudo systemctl start postgresql
+```
